@@ -1,0 +1,44 @@
+<body>
+  <div id="container" class="{{route}}">
+  <div id="video-placeholder" ></div>
+
+  <div id="bottom-band" class="img-container">
+    <img src="/00-produit.jpg">
+  </div>
+
+  {{#each tasks}}
+    {{> task}}
+  {{/each}}
+
+  <div id="more-info">
+
+    <h2 class="product-title">TOUS LES PRODUITS</h2>
+    <img class="product-img" src="/02-eyeliner.jpg">
+    <img class="product-img" src="/05-mascara.jpg">
+    <img class="product-img" src="/08-rouge.jpg">
+
+    <button id="get-my-box">GET MY BOX</button>
+
+  </div>
+
+</div>
+
+
+</body>
+ 
+
+<template name="task">
+<!--   <i id="play" class="material-icons">play_arrow</i>
+  <i id="pause" class="material-icons">pause</i>
+  <br> -->
+  <div id="controls">
+    <button id="action">Action</button>
+    <br>
+    <div id="indicators">
+      <div>Active: {{active}}</div>
+      <br>
+      <div> In loop: {{loop}}</div>
+    </div>
+  </div>
+<!--   <button id="delete">X</button> -->
+</template>
