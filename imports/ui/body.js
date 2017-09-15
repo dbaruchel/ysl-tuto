@@ -88,7 +88,7 @@ if (Meteor.isClient) {
 
 
     	    //Auto Update of Bottom Image
-			autoUpdateImg();    	   
+			autoUpdateImg();   	   
 
     	    //Interations
 
@@ -98,11 +98,11 @@ if (Meteor.isClient) {
 
     	    //Loop
     	    updateVars();
-    	    changeTimer(97, 100, 101, 152);
+    	    changeTimer(97, 100, 102, 152);
 
     	    //Focus
     	    updateVars();
-    	    changeTimer(184, 188, 189, 203);
+    	    changeTimer(184, 188, 190, 203);
 
     	    //Tips
     	    updateVars();
@@ -110,12 +110,13 @@ if (Meteor.isClient) {
 
     	    //Replay
     	    updateVars();
-    	    changeTimer(265, 270, 16, 270);
+    	    changeTimer(265, 270, 16, 271);
 
     	    //
 
     	}, 100);
 	}
+
 
 	function changeTimer(start, end, to, skip) {
 		if (active && start <= floorTimer && floorTimer < end) {
@@ -172,14 +173,14 @@ if (Meteor.isClient) {
 		if (state.loop == '1') {
 			inLoop = true;
 		}
-		else if (state.loop == 'O') {
+		else if (state.loop == '0') {
 			inLoop = false;
 		}
 
 		if (state.active == '1') {
 			active = true;
 		}
-		else if (state.active == 'O') {
+		else if (state.active == '0') {
 			active = false;
 		}
 		// console.log('loop:' + inLoop);
@@ -286,11 +287,14 @@ Template.task.events({
   	},
 
   	'click #cancel'(event, instance) {
+  		console.log('cancel was clicked');
   	    state = Tasks.find({}).fetch()[0];
 
         Tasks.update(state._id, {
           $set: { active: '0' },
         });
+
+        console.log('active state: ' + state.active);
   	},
 
   	// 'click #play'(event, instance) {
