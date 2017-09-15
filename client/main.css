@@ -23,7 +23,18 @@ body{
     padding: 1rem 2rem;
     letter-spacing: 0.05rem;
     font-weight: 600;
-    margin: 5rem 0;
+    margin: 5rem 0 1rem;
+    background: white;
+}
+
+#cancel {
+    text-align: center;
+    font-size: 1.5rem;
+    letter-spacing: 0.05rem;
+    color:#ccc;
+    border:0;
+    font-weight: 200;
+    margin: 1rem 0 4rem;
     background: white;
 }
 
@@ -85,6 +96,7 @@ body{
 
 .product-img {
     width: 100%;
+    padding-bottom: 1rem;
 }
 
 .product-title {

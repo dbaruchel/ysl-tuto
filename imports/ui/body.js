@@ -14,7 +14,6 @@ Template.body.helpers({
     return Tasks.find({});
   },
   route() {
-  	console.log(FlowRouter.getRouteName());
   	return FlowRouter.getRouteName();
   }
 });
@@ -30,22 +29,21 @@ if (Meteor.isClient) {
 	active = false;
 
 	// YouTube API will call onYouTubeIframeAPIReady() when API ready.
-	// Make sure it's a global variable.
 	onYouTubeIframeAPIReady = function () {
 
 		// var player,
 		//     time_update_interval = 0;
 	
 	    // New Video Player, the first argument is the id of the div.
-	    // Make sure it's a global variable.
 	    player = new YT.Player("video-placeholder", {
 	
 	        height: "400", 
 	        width: "600", 
-	        videoId: 'eb84Tx-ftUs',
+	        videoId: '6PYPgZr7xz0',
 	        playerVars: {
 	            disablekb: '1',
 	            fs:'0',
+	            // showinfo:'0',
 	            iv_load_policy:'3',
 	            modestbranding:'1',
 	            playsinline:'1',
@@ -69,15 +67,12 @@ if (Meteor.isClient) {
 	    // Update the controls on load
 	    // updateTimerDisplay();
 	    // updateProgressBar();
-	    
+	    player.unMute();
 	    timer = player.getCurrentTime();
-	    console.log(timer);
 	    floorTimer = Math.floor(timer);
 
-	    state = Tasks.find({}).fetch()[0];
-	    Tasks.update(state._id, {
-	      $set: { active: '0' },
-	    });
+	    setActive(0);
+	    setLoop(0);
 
 	    // Clear any old interval.
 	    clearInterval(time_update_interval);
@@ -91,81 +86,84 @@ if (Meteor.isClient) {
 
     	   	console.log(floorTimer);
 
-    	    // updateProgressBar();
 
-    	    // isBreakPoint();
-    	    // updateVars();
-    	    // testLoop();
-    	    // updateVars();
-    	    // playLoop();
+    	    //Auto Update of Bottom Image
+			autoUpdateImg();    	   
 
+    	    //Interations
+
+    	    //Play
     	    updateVars();
-    	    changeTimer(4, 9, 20);
+    	    changeTimer(13, 15, 16, 16);
 
-    	    // changeTimer(10, 15);
-    	    // changeTimer(20, 25);
+    	    //Loop
+    	    updateVars();
+    	    changeTimer(97, 100, 101, 152);
 
-    	    autoUpdateImg(2, '/01-eyeliner.jpg');
+    	    //Focus
+    	    updateVars();
+    	    changeTimer(184, 188, 189, 203);
 
-    	    autoUpdateImg(4, '/02-eyeliner.jpg');
+    	    //Tips
+    	    updateVars();
+    	    changeTimer(230, 234, 236.5, 251);
 
-    	    autoUpdateImg(6, '/02bis-eyeliner.jpg');
+    	    //Replay
+    	    updateVars();
+    	    changeTimer(265, 270, 16, 270);
 
-    	    autoUpdateImg(8, '/03-eyeliner.jpg');
-
-    	    autoUpdateImg(10, '/04-mascara.jpg');
-
-    	    autoUpdateImg(12, '/05-mascara.jpg');
-
-    	    autoUpdateImg(14, '/06-mascara.jpg');
-
-    	    autoUpdateImg(16, '/07-rouge.jpg');
-
-    	    autoUpdateImg(18, '/08-rouge.jpg');
-
-    	    autoUpdateImg(20, '/09-rouge.jpg');
+    	    //
 
     	}, 100);
-
-	    // var timeout = setTimeout(function(){
-	    //   var interval = setInterval(function(){
-	    //     if(player.getCurrentTime() === <you_set_time>){
-	    //         clearInterval(interval);
-	    //         // Your logic
-	    //     }
-
-	    //   },1000);
-	    // },<your_set_time_in_millisecs>);
 	}
 
-	// function isBreakPoint() {
-	// 	var floorTimer = Math.floor(timer);
-	// 	if (floorTimer == 10 ||
-	// 		floorTimer == 20 ||
-	// 		floorTimer == 30 ) {
-	// 		return true;
-	// 	}
-	// 	else { false; }
-	// }
-
-	function goTo(from, to) {
-		state = Tasks.find({}).fetch()[0];
-
-		if (floorTimer >= from && floorTimer < to) {
+	function changeTimer(start, end, to, skip) {
+		if (active && start <= floorTimer && floorTimer < end) {
 			player.seekTo(to);
+			setActive(0);
+		}
+		if (floorTimer == end) {
+			player.seekTo(skip);
 		}
 	}
 
-	function changeTimer(start, end, to) {
+	function setActive(num) {
 		state = Tasks.find({}).fetch()[0];
-
-		if (active && floorTimer >= start && floorTimer < end) {
-			player.seekTo(to);
-			
+		if (num == 0) {
 			active = false;
+			Tasks.update(state._id, {
+			  $set: { active: '0' },
+			});
+		}
+		else if (num == 1) {
+			active = true;
 			Tasks.update(state._id, {
 			  $set: { active: '1' },
 			});
+		}
+	} 
+
+	function setLoop(num) {
+		state = Tasks.find({}).fetch()[0];
+		if (num == 0) {
+			inLoop = false;
+			Tasks.update(state._id, {
+			  $set: { loop: '0' },
+			});
+		}
+		else if (num == 1) {
+			inLoop = true;
+			Tasks.update(state._id, {
+			  $set: { loop: '1' },
+			});
+		}
+	} 
+
+	function goTo(from, to) {
+		// state = Tasks.find({}).fetch()[0];
+
+		if (floorTimer >= from && floorTimer < to) {
+			player.seekTo(to);
 		}
 	}
 
@@ -184,71 +182,76 @@ if (Meteor.isClient) {
 		else if (state.active == 'O') {
 			active = false;
 		}
-		console.log('loop:' + inLoop);
+		// console.log('loop:' + inLoop);
 		console.log('active:' + active);
 	}
 
-	function autoUpdateImg(time, imgSource) {
-		if (floorTimer == time) {
-			$('#bottom-band img').attr('src', imgSource);
+	function autoUpdateImg() {
+
+		if (0 <= floorTimer && floorTimer < 16) {
+			$('#bottom-band img').attr('src', '/00-produit.jpg');
+		}
+		else if (16 <= floorTimer && floorTimer < 20) {
+			$('#bottom-band img').attr('src', '/01-eyeliner.jpg');
+		}
+		else if (20 <= floorTimer && floorTimer < 102) {
+			$('#bottom-band img').attr('src', '/02-eyeliner.jpg');
+		}
+		else if (102 <= floorTimer && floorTimer < 151) {
+			$('#bottom-band img').attr('src', '/02bis-eyeliner.jpg');
+		}
+		else if (151 <= floorTimer && floorTimer < 157) {
+			$('#bottom-band img').attr('src', '/03-eyeliner.jpg');
+		}
+		else if (157 <= floorTimer && floorTimer < 160) {
+			$('#bottom-band img').attr('src', '/04-mascara.jpg');
+		}
+		else if (160 <= floorTimer && floorTimer < 188) {
+			$('#bottom-band img').attr('src', '/05-mascara.jpg');
+		}
+		else if (188 <= floorTimer && floorTimer < 202) {
+			$('#bottom-band img').attr('src', '/06-mascara.jpg');
+		}
+		else if (202 <= floorTimer && floorTimer < 206) {
+			$('#bottom-band img').attr('src', '/07-rouge.jpg');
+		}
+		else if (206 <= floorTimer && floorTimer < 235) {
+			$('#bottom-band img').attr('src', '/08-rouge.jpg');
+		}
+		else if (235 <= floorTimer && floorTimer < 256) {
+			$('#bottom-band img').attr('src', '/09-rouge.jpg');
+		}
+		else if (256 <= floorTimer && floorTimer < 270) {
+			$('#bottom-band img').attr('src', '/08-rouge.jpg');
 		}
 	}
 
-	// function testLoop() {
-
-	// 	console.log(floorTimer);
-
-	// 	state = Tasks.find({}).fetch()[0];
-
-	// 	if (floorTimer == 4) {
-	// 		Tasks.update(state._id, {
-	// 		  $set: { loop: '1' },
-	// 		});
-	// 	}
-	// 	else if (floorTimer == 20) {
-	// 		Tasks.update(state._id, {
-	// 		  $set: { loop: '1' },
-	// 		});
-	// 	}
-	// }
-
-	// function playLoop() {
-
-	// 	if ( !active && inLoop && 7 <= timer ) {
-	// 		player.seekTo(4);
-	// 	}
-	// 	else if ( inLoop && 24 <= timer ) {
-	// 		player.seekTo(20);
-	// 	}
-	// }
+	function UpdateImg(imgSource) {
+		$('#bottom-band img').attr('src', imgSource);
+	}
 
 
-	// function onPlayerStateChange(){
-	// 	console.log(YT.PlayerState.PLAYING)
-	// 
-	// 	clearInterval(time_update_interval);
+	function playLoop(begin, end, out) {
 
-	// 	var time_update_interval = setInterval(function () {
-	// 	    // updateTimerDisplay();
-	// 	    timer = player.getCurrentTime();
-	// 	    console.log(timer);
-	// 	    // updateProgressBar();
-	// 	}, 500);
-	// 	}
-	// }
+		if (begin <= floorTimer && floorTimer <= end) {
+			setLoop(1);
+			inLoop = true;
+		
+			if (active) {
+				player.seekTo(out);
+				setActive(0);
+			}
+
+			else {
+				if (end == floorTimer ) {
+					player.seekTo(begin);
+				}
+			}
+		}
+
+	}
 
 }
-
-// Template.state.onRendered(function () {
-//   this.InLoop = new ReactiveVar();
-//   this.InLoop = inLoop;
-// });
-
-// Template.state.helpers({
-//   inLoop() {
-//     return Template.instance().tempInLoop.get();
-//   },
-// });
 
 Template.body.onCreated(function() {
   var scrollTop = 0;
@@ -271,55 +274,36 @@ Template.body.onCreated(function() {
   }); 
 });
 
-// $(document).ready(function(){
-//   var scrollTop = 0;
-//   $(window).scroll(function(){
-//     scrollTop = $(window).scrollTop();
-    
-//     if (scrollTop >= 100) {
-//       $('#global-nav').addClass('scrolled-nav');
-//     } else if (scrollTop < 100) {
-//       $('#global-nav').removeClass('scrolled-nav');
-//     } 
-    
-//   }); 
-  
-// });
-
 
 Template.task.events({
-	'click #play'(event, instance) {
-		player.playVideo();
-	},
 
-	'click #pause'(event, instance) {
-		player.pauseVideo();
-	},
-
-	'click #delete'(event, instance){
-		Tasks.remove(this._id);
-	},
-
-  	'click button'(event, instance) {
-  	    var timer = player.getCurrentTime()
+  	'click #action'(event, instance) {
   	    state = Tasks.find({}).fetch()[0];
 
-  	    if ( 4 <= timer < 7 ) {
-  	        Tasks.update(state._id, {
-  	          $set: { loop: '0' },
-  	        });
-
-  	        Tasks.update(state._id, {
-  	          $set: { active: '1' },
-  	        });
-  	    }
-  	    // else if (10 <= timer && timer < 20) {
-  	    //     player.seekTo(120);
-  	    // }
-  	    // else {
-  	    //     player.seekTo(180);
-  	    // }
+  	    Tasks.update(state._id, {
+  	      $set: { active: '1' },
+  	    });
   	},
+
+  	'click #cancel'(event, instance) {
+  	    state = Tasks.find({}).fetch()[0];
+
+        Tasks.update(state._id, {
+          $set: { active: '0' },
+        });
+  	},
+
+  	// 'click #play'(event, instance) {
+  	// 	player.playVideo();
+  	// },
+
+  	// 'click #pause'(event, instance) {
+  	// 	player.pauseVideo();
+  	// },
+
+  	// 'click #delete'(event, instance){
+  	// 	Tasks.remove(this._id);
+  	// },
 });
 
 
@@ -331,97 +315,6 @@ Template.task.events({
 //     console.log("The value of 'name' changed! It is now: " + value);
 //   });
 // }
-
-// Template.state.onRendered(function () {
-
-// 	var player,
-// 	    time_update_interval = 0;
-
-// 	function onYouTubeIframeAPIReady() {
-// 	    player = new YT.Player('video-placeholder', {
-// 	        width: 600,
-// 	        height: 400,
-// 	        videoId: 'Xa0Q0J5tOP0',
-// 	        playerVars: {
-// 	            color: 'white',
-// 	            playlist: 'taJ60kskkns,FG0fTKAqZ5g',
-// 	            controls: '0',
-// 	            disablekb: '1',
-// 	            fs:'0',
-// 	            iv_load_policy:'3',
-// 	            modestbranding:'1',
-// 	            playsinline:'1',
-// 	            rel:'0'
-// 	        },
-// 	        // events: {
-// 	        //     onReady: initialize
-// 	        // }
-// 	    });
-// 	}
-
-// 	// function initialize(){
-
-// 	//     // Update the controls on load
-// 	//     updateTimerDisplay();
-// 	//     updateProgressBar();
-
-// 	//     // Clear any old interval.
-// 	//     clearInterval(time_update_interval);
-
-// 	//     // Start interval to update elapsed time display and
-// 	//     // the elapsed part of the progress bar every second.
-// 	//     time_update_interval = setInterval(function () {
-// 	//         updateTimerDisplay();
-// 	//         updateProgressBar();
-// 	//     }, 1000);
-
-
-// 	//     $('#volume-input').val(Math.round(player.getVolume()));
-// 	// }
-
-
-// 	// This function is called by initialize()
-// 	// function updateTimerDisplay(){
-// 	//     // Update current time text display.
-// 	//     $('#current-time').text(formatTime( player.getCurrentTime() ));
-// 	//     $('#duration').text(formatTime( player.getDuration() ));
-// 	// }
-
-
-// 	// // This function is called by initialize()
-// 	// function updateProgressBar(){
-// 	//     // Update the value of our progress bar accordingly.
-// 	//     $('#progress-bar').val((player.getCurrentTime() / player.getDuration()) * 100);
-// 	// }
-
-// });
-
-
-
-// Playback
-
-// $('#play').on('click', function () {
-//     player.playVideo();
-// });
-
-
-// $('#pause').on('click', function () {
-//     player.pauseVideo();
-// });
-
-// $('#action').on('click', function () {
-//     var timer = player.getCurrentTime()
-
-//     if (timer < 10 ) {
-//         player.seekTo(60);
-//     }
-//     else if (10 <= timer && timer < 20) {
-//         player.seekTo(120);
-//     }
-//     else {
-//         player.seekTo(180);
-//     }
-// });
 
 
 // Helper Functions
@@ -436,79 +329,3 @@ Template.task.events({
 
 //     return minutes + ":" + seconds;
 // }
-
-// Progress bar
-
-// $('#progress-bar').on('mouseup touchend', function (e) {
-
-//     // Calculate the new time for the video.
-//     // new time in seconds = total duration in seconds * ( value of range input / 100 )
-//     var newTime = player.getDuration() * (e.target.value / 100);
-
-//     // Skip video to new time.
-//     player.seekTo(newTime);
-
-// });
-
-
-// Sound volume
-
-
-// $('#mute-toggle').on('click', function() {
-//     var mute_toggle = $(this);
-
-//     if(player.isMuted()){
-//         player.unMute();
-//         mute_toggle.text('volume_up');
-//     }
-//     else{
-//         player.mute();
-//         mute_toggle.text('volume_off');
-//     }
-// });
-
-// $('#volume-input').on('change', function () {
-//     player.setVolume($(this).val());
-// });
-
-
-// Other options
-
-
-// $('#speed').on('change', function () {
-//     player.setPlaybackRate($(this).val());
-// });
-
-// $('#quality').on('change', function () {
-//     player.setPlaybackQuality($(this).val());
-// });
-
-
-// Playlist
-
-// $('#next').on('click', function () {
-//     player.nextVideo()
-// });
-
-// $('#prev').on('click', function () {
-//     player.previousVideo()
-// });
-
-
-// Load video
-
-// $('.thumbnail').on('click', function () {
-
-//     var url = $(this).attr('data-video-id');
-
-//     player.cueVideoById(url);
-
-// });
-
-
-
-
-
-// $('pre code').each(function(i, block) {
-//     hljs.highlightBlock(block);
-// });
